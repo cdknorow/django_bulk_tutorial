@@ -21,12 +21,12 @@ from rest_framework.urls import url
 urlpatterns = [
     path("admin/", admin.site.urls),
     url(
-        r"^project/(?P<project_uuid>[^/]+)/task/$",
+        r"^project/(?P<project_id>[^/]+)/task/$",
         TaskListCreatetUpdateView.as_view(),
         name="project-task-list-create-update",
     ),
     url(
-        r"^v2/project/(?P<project_uuid>[^/]+)/task/$",
+        r"^v2/project/(?P<project_id>[^/]+)/task/$",
         TaskBulkListCreatetUpdateView.as_view(),
         name="v2-project-task-list-create-update",
     ),

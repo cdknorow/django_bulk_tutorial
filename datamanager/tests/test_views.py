@@ -22,7 +22,7 @@ class TestTask():
         test_url = reverse(
             "project-task-list-create-update",
             kwargs={
-                "project_uuid": project.uuid,
+                "project_id": project.id,
             },
         )
 
@@ -37,7 +37,7 @@ class TestTask():
         test_url = reverse(
             "project-task-list-create-update",
             kwargs={
-                "project_uuid": project.uuid,
+                "project_id": project.id,
             },
         )
         data = [{"name": "MyTask_{}".format(x), "description": "Test"} for x in range(TEST_SIZE)]
@@ -61,7 +61,7 @@ class TestBulkTask():
         test_url = reverse(
             "v2-project-task-list-create-update",
             kwargs={
-                "project_uuid": project.uuid,
+                "project_id": project.id,
             },
         )
         data = [{"name": "MyTask_{}".format(x), "description": "Test"} for x in range(TEST_SIZE)]

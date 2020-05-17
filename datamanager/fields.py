@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 
 
-class ModelObjectUUIDField(serializers.Field):
+class ModelObjectidField(serializers.Field):
     """
         We use this when we are doing bulk create/update. Since multiple instances share
         many of the same fk objects we validate and query the objects first, then modify the request data
@@ -13,7 +13,7 @@ class ModelObjectUUIDField(serializers.Field):
     """
 
     def to_representation(self, value):
-        return value.uuid
+        return value.id
 
     def to_internal_value(self, data):
         return data
@@ -25,8 +25,8 @@ class CurrentProjectDefault(object):
     def __call__(self, serializer_field):
         try:
             self.project = Project.objects.get(
-                uuid=serializer_field.context["request"].parser_context["kwargs"][
-                    "project_uuid"
+                id=serializer_field.context["request"].parser_context["kwargs"][
+                    "project_id"
                 ]
             )
         except ObjectDoesNotExist:

@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
 from datamanager.serializers import TaskSerializer, BulkTaskSerializer
-import uuid
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from datamanager.models import Task, Project
@@ -10,17 +9,17 @@ from rest_framework.urls import url
 # Create your views here.
 
 
-def validate_uuids(data, field="uuid", unique=True):
+def validate_ids(data, field="id", unique=True):
 
     if isinstance(data, list):
-        uuid_list = [uuid.UUID(x[field]) for x in data]
+        id_list = [id.id(x[field]) for x in data]
 
-        if unique and len(uuid_list) != len(set(uuid_list)):
+        if unique and len(id_list) != len(set(id_list)):
             raise ValidationError("Multiple updates to a single {} found".format(field))
 
-        return uuid_list
+        return id_list
 
-    return [uuid.UUID(data)]
+    return [id.id(data)]
 
 
 class TaskListCreatetUpdateView(generics.ListCreateAPIView):
@@ -38,13 +37,13 @@ class TaskListCreatetUpdateView(generics.ListCreateAPIView):
 
         return super(TaskListCreatetUpdateView, self).get_serializer(*args, **kwargs)
 
-    def get_queryset(self, uuids=None):
-        if uuids:
+    def get_queryset(self, ids=None):
+        if uds:
             return Task.objects.filter(
-                project__uuid=self.kwargs["project_uuid"], uuid__in=uuids,
+                project__id=self.kwargs["project_id"], id__in=ids,
             )
 
-        return Task.objects.filter(project__uuid=self.kwargs["project_uuid"])
+        return Task.objects.filter(project__id=self.kwargs["project_id"])
 
     def post(self, request, *args, **kwargs):
 
@@ -54,8 +53,8 @@ class TaskListCreatetUpdateView(generics.ListCreateAPIView):
         return self.update(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        uuids = validate_uuids(request.data)
-        instances = self.get_queryset(uuids=uuids)
+        ids = validate_ids(request.data)
+        instances = self.get_queryset(ids=ids)
         serializer = self.get_serializer(
             instances, data=request.data, partial=False, many=True
         )
@@ -83,17 +82,17 @@ class TaskBulkListCreatetUpdateView(generics.ListCreateAPIView):
             *args, **kwargs
         )
 
-    def get_queryset(self, uuids=None):
-        if uuids:
+    def get_queryset(self, ids=None):
+        if ids:
             return Task.objects.filter(
-                project__uuid=self.kwargs["project_uuid"], uuid__in=uuids,
+                project__pk=self.kwargs["project_id"], id__in=ids,
             )
 
-        return Task.objects.filter(project__uuid=self.kwargs["project_uuid"],)
+        return Task.objects.filter(project__id=self.kwargs["project_id"],)
 
     def post(self, request, *args, **kwargs):
 
-        project = Project.objects.get(uuid=kwargs["project_uuid"])
+        project = Project.objects.get(id=kwargs["project_id"])
 
         if isinstance(request.data, list):
             for item in request.data:
@@ -107,8 +106,8 @@ class TaskBulkListCreatetUpdateView(generics.ListCreateAPIView):
         return self.update(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        uuids = validate_uuids(request.data)
-        instances = self.get_queryset(uuids=uuids)
+        ids = validate_ids(request.data)
+        instances = self.get_queryset(ids=ids)
         serializer = self.get_serializer(
             instances, data=request.data, partial=False, many=True
         )

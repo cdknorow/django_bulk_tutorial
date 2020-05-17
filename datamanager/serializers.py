@@ -4,7 +4,7 @@ from datamanager.models import Task, Project
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
-from datamanager.fields import ModelObjectUUIDField, CurrentProjectDefault
+from datamanager.fields import ModelObjectidField, CurrentProjectDefault
 
 
 class CreateUpdateListSerializer(serializers.ListSerializer):
@@ -14,10 +14,10 @@ class CreateUpdateListSerializer(serializers.ListSerializer):
     def update(self, instances, validated_data):
 
         # speed optimization
-        instances_hash = {instance.uuid: instance for instance in instances}
+        instances_hash = {instance.id: instance for instance in instances}
 
         result = [
-            self.child.update(instances_hash.get(attrs["uuid"]), attrs)
+            self.child.update(instances_hash.get(attrs["id"]), attrs)
             for attrs in validated_data
         ]
 
@@ -41,10 +41,10 @@ class BulkCreateUpdateListSerializer(serializers.ListSerializer):
     def update(self, instances, validated_data):
 
         # speed optimization
-        instances_hash = {instances.uuid: instance for instance in instances}
+        instances_hash = {instances.id: instance for instance in instances}
 
         result = [
-            self.child.update(instances_hash.get(attrs["uuid"]), attrs)
+            self.child.update(instances_hash.get(attrs["id"]), attrs)
             for attrs in validated_data
         ]
 
@@ -101,13 +101,13 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("uuid", "name", "project", "description", "last_modified")
-        read_only_fields = ("uuid", "last_modiied")
+        fields = ("id", "name", "project", "description", "last_modified")
+        read_only_fields = ("id", "last_modiied")
         list_serializer_class = CreateUpdateListSerializer
 
 
 class BulkTaskSerializer(serializers.ModelSerializer):
-    project = ModelObjectUUIDField()
+    project = ModelObjectidField()
 
     def create(self, validated_data):
         instance = Task(**validated_data)
@@ -129,6 +129,6 @@ class BulkTaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("uuid", "name", "project", "description", "last_modified")
-        read_only_fields = ("uuid", "last_modiied")
+        fields = ("id", "name", "project", "description", "last_modified")
+        read_only_fields = ("id", "last_modiied")
         list_serializer_class = BulkCreateUpdateListSerializer
