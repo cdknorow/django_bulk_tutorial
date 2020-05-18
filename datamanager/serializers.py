@@ -102,8 +102,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ("id", "name", "project", "description", "last_modified")
-        read_only_fields = ("id", "last_modiied")
-        list_serializer_class = CreateUpdateListSerializer
+        read_only_fields = ("id", "last_modified")
 
 
 class BulkTaskSerializer(serializers.ModelSerializer):
@@ -130,5 +129,5 @@ class BulkTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ("id", "name", "project", "description", "last_modified")
-        read_only_fields = ("id", "last_modiied")
+        read_only_fields = ("id", "last_modified")
         list_serializer_class = BulkCreateUpdateListSerializer

@@ -12,14 +12,14 @@ from rest_framework.urls import url
 def validate_ids(data, field="id", unique=True):
 
     if isinstance(data, list):
-        id_list = [id.id(x[field]) for x in data]
+        id_list = [int(x[field]) for x in data]
 
         if unique and len(id_list) != len(set(id_list)):
             raise ValidationError("Multiple updates to a single {} found".format(field))
 
         return id_list
 
-    return [id.id(data)]
+    return [data]
 
 
 class TaskListCreatetUpdateView(generics.ListCreateAPIView):
@@ -38,16 +38,12 @@ class TaskListCreatetUpdateView(generics.ListCreateAPIView):
         return super(TaskListCreatetUpdateView, self).get_serializer(*args, **kwargs)
 
     def get_queryset(self, ids=None):
-        if uds:
+        if ids:
             return Task.objects.filter(
                 project__id=self.kwargs["project_id"], id__in=ids,
             )
 
         return Task.objects.filter(project__id=self.kwargs["project_id"])
-
-    def post(self, request, *args, **kwargs):
-
-        return super(TaskListCreatetUpdateView, self).post(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
