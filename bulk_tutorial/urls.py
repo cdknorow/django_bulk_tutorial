@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from datamanager.views import TaskListCreatetUpdateView, TaskBulkListCreatetUpdateView
+from datamanager.views import (
+    TaskListCreatetUpdateView,
+    TaskBulkListCreatetUpdateView,
+    TaskUpdateView,
+)
 from rest_framework.urls import url
 
 urlpatterns = [
@@ -29,5 +33,10 @@ urlpatterns = [
         r"^v2/project/(?P<project_id>[^/]+)/task/$",
         TaskBulkListCreatetUpdateView.as_view(),
         name="v2-project-task-list-create-update",
+    ),
+    url(
+        r"^project/(?P<project_id>[^/]+)/task/(?P<id>[^/]+)$",
+        TaskUpdateView.as_view(),
+        name="project-task-update",
     ),
 ]

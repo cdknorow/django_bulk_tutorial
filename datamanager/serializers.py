@@ -13,12 +13,9 @@ class CreateUpdateListSerializer(serializers.ListSerializer):
 
     def update(self, instances, validated_data):
 
-        # speed optimization
-        instances_hash = {instance.id: instance for instance in instances}
-
         result = [
-            self.child.update(instances_hash.get(attrs["id"]), attrs)
-            for attrs in validated_data
+            self.child.update(instances[index], attrs)
+            for index, attrs in enumerate(validated_data)
         ]
 
         return result
@@ -40,12 +37,9 @@ class BulkCreateUpdateListSerializer(serializers.ListSerializer):
 
     def update(self, instances, validated_data):
 
-        # speed optimization
-        instances_hash = {instances.id: instance for instance in instances}
-
         result = [
-            self.child.update(instances_hash.get(attrs["id"]), attrs)
-            for attrs in validated_data
+            self.child.update(instances[index], attrs)
+            for index, attrs in enumerate(validated_data)
         ]
 
         writable_fields = [
@@ -103,6 +97,7 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = ("id", "name", "project", "description", "last_modified")
         read_only_fields = ("id", "last_modified")
+        list_serializer_class = CreateUpdateListSerializer
 
 
 class BulkTaskSerializer(serializers.ModelSerializer):

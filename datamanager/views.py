@@ -22,6 +22,21 @@ def validate_ids(data, field="id", unique=True):
     return [data]
 
 
+class TaskUpdateView(generics.UpdateAPIView):
+    """
+    # Update the Taks
+    """
+
+    lookup_field = "id"
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+
+        return Task.objects.filter(
+            project__id=self.kwargs["project_id"], id=self.kwargs["id"],
+        )
+
+
 class TaskListCreatetUpdateView(generics.ListCreateAPIView):
     """
     # List/Create/Update the relationships between Labels and CaptureSamples
@@ -59,6 +74,9 @@ class TaskListCreatetUpdateView(generics.ListCreateAPIView):
         self.perform_update(serializer)
 
         return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
 
 
 class TaskBulkListCreatetUpdateView(generics.ListCreateAPIView):
@@ -102,7 +120,17 @@ class TaskBulkListCreatetUpdateView(generics.ListCreateAPIView):
         return self.update(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
+
+        project = Project.objects.get(id=kwargs["project_id"])
+
         ids = validate_ids(request.data)
+
+        if isinstance(request.data, list):
+            for item in request.data:
+                item["project"] = project
+        else:
+            raise ValidationError("Invalid Input")
+
         instances = self.get_queryset(ids=ids)
         serializer = self.get_serializer(
             instances, data=request.data, partial=False, many=True
