@@ -73,8 +73,7 @@ class TestTaskUpdate():
         from django.db import reset_queries
         from django.db import connection
         from django.conf import settings
-        print(settings.DEBUG)
-        #settings.DEBUG=True
+        settings.DEBUG=True
         reset_queries()
         test_url = reverse(
             "v2-project-task-list-create-update",
