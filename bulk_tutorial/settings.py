@@ -90,7 +90,7 @@ DATABASES = {
         "NAME": "test",
         "USER": "postgres",
         "PASSWORD": "postgres",
-        "HOST": "db",
+        "HOST": "db_bulk",
     }
 }
 

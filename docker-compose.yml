@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  db:
+  db_bulk:
     image: postgres
     environment:
       - POSTGRES_DB=test
@@ -21,7 +21,7 @@ services:
       - DJANGO_ENV=env
     command: bash setup_server.sh
     depends_on:
-      - db
+      - db_bulk
   app:
     build:
       context: .
@@ -32,9 +32,7 @@ services:
         target: /app
     environment:
       - DJANGO_ENV=django
-    command: py.test --durations=10
-    ports:
-      - "8000:8000"
+    command: py.test --durations=20 -vvv
     depends_on:
-      - db
+      - db_bulk
       - db_init

@@ -64,11 +64,15 @@ class TaskListCreatetUpdateView(generics.ListCreateAPIView):
         return self.update(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
+
         ids = validate_ids(request.data)
+
         instances = self.get_queryset(ids=ids)
+
         serializer = self.get_serializer(
             instances, data=request.data, partial=False, many=True
         )
+
         serializer.is_valid(raise_exception=True)
 
         self.perform_update(serializer)
@@ -121,6 +125,10 @@ class TaskBulkListCreatetUpdateView(generics.ListCreateAPIView):
 
     def update(self, request, *args, **kwargs):
 
+        import time
+
+        start = time.time()
+
         project = Project.objects.get(id=kwargs["project_id"])
 
         ids = validate_ids(request.data)
@@ -130,16 +138,29 @@ class TaskBulkListCreatetUpdateView(generics.ListCreateAPIView):
                 item["project"] = project
         else:
             raise ValidationError("Invalid Input")
+        print("validate", time.time() - start)
 
         instances = self.get_queryset(ids=ids)
+        print("queresy", time.time() - start)
+        start = time.time()
         serializer = self.get_serializer(
             instances, data=request.data, partial=False, many=True
         )
+        print("get serializer", time.time() - start)
+        start = time.time()
         serializer.is_valid(raise_exception=True)
+        print("check vlaid", time.time() - start)
+        start = time.time()
 
         self.perform_update(serializer)
+        print("update", time.time() - start)
+        start = time.time()
 
-        return Response(serializer.data)
+        data = serializer.data
+        print("data", time.time() - start)
+        start = time.time()
+
+        return Response(data)
 
     def perform_update(self, serializer):
         serializer.save()

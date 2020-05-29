@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 from datamanager.fields import ModelObjectidField, CurrentProjectDefault
+import time
 
 
 class CreateUpdateListSerializer(serializers.ListSerializer):
@@ -12,9 +13,10 @@ class CreateUpdateListSerializer(serializers.ListSerializer):
         return [self.child.create(attrs) for attrs in validated_data]
 
     def update(self, instances, validated_data):
+        instance_hash = {index: instance for index, instance in enumerate(instances)}
 
         result = [
-            self.child.update(instances[index], attrs)
+            self.child.update(instance_hash[index], attrs)
             for index, attrs in enumerate(validated_data)
         ]
 
@@ -35,32 +37,65 @@ class BulkCreateUpdateListSerializer(serializers.ListSerializer):
 
         return result
 
-    def update(self, instances, validated_data):
+    def to_representation(self, instances):
 
+        start = time.time()
+        project = instances[0].project.pk
+        rep_list = []
+        for instance in instances:
+            rep_list.append(
+                dict(
+                    id=instance.pk,
+                    project=project,
+                    description=instance.description,
+                    name=instance.name,
+                    last_modified=instance.last_modified,
+                )
+            )
+
+        print("to_rep", time.time() - start)
+
+        return rep_list
+
+    def update(self, instances, validated_data):
+        start = time.time()
+
+        instance_hash = {index: instance for index, instance in enumerate(instances)}
+        print("instance hash", time.time() - start)
+        start = time.time()
         result = [
-            self.child.update(instances[index], attrs)
+            self.child.update(instance_hash[index], attrs)
             for index, attrs in enumerate(validated_data)
         ]
+        print("update instance", time.time() - start)
+        start = time.time()
 
+        print(self.child.Meta.read_only_fields)
         writable_fields = [
             x
             for x in self.child.Meta.fields
-            if x not in self.child.Meta.read_only_fields
+            if x not in self.child.Meta.read_only_fields + ("project",)
         ]
-
         # bulk update doesn't modify auto_now fields in django
         if "last_modified" in self.child.Meta.fields:
             writable_fields += ["last_modified"]
             last_modified = timezone.now()
             for instance in result:
                 instance.last_modified = last_modified
+        print("lst modified", time.time() - start)
+        start = time.time()
 
         try:
             self.child.Meta.model.objects.bulk_update(result, writable_fields)
         except IntegrityError as e:
             raise ValidationError(e)
 
+        print("bulk update", time.time() - start)
+        start = time.time()
+
         update_project_last_modified(result)
+        print("project lm", time.time() - start)
+        start = time.time()
 
         return result
 
@@ -112,7 +147,6 @@ class BulkTaskSerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-
         instance.description = validated_data["description"]
         instance.name = validated_data["name"]
 
