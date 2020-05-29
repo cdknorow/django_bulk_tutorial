@@ -10,7 +10,7 @@ import pytest
 pytestmark = pytest.mark.django_db  # All tests use db
 
 
-TEST_SIZE = 100
+TEST_SIZE = 10000
 
 @pytest.fixture
 def project():
@@ -30,18 +30,18 @@ def tasks(project):
 class TestTaskUpdate():
     def test_update_task(self,client, project, tasks):
 
-        for x in range(TEST_SIZE):
+        for task in tasks:
             test_url = reverse(
                 "project-task-update",
                 kwargs={
                     "project_id": project.id,
-                    "id": tasks[x].id
+                    "id": task.id
                 },
             )
             # test auto setting sequence
             response = client.put(
                 test_url,
-                data = {'name':'Test_{0}_{0}'.format(x),
+                data = {'name':'Test_{0}_{0}'.format(task.id),
                         'description':"test",
                        }
             )
@@ -91,8 +91,6 @@ class TestTaskUpdate():
         assert response.status_code == status.HTTP_200_OK
 
         assert len(response.json()) == TEST_SIZE
-
-
 
 
 

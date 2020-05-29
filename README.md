@@ -1,2 +1,3 @@
-This is an example project to demonstrate how to optimize bulk create/update in django_rest_framework. Using this method
-you should be able to get close to raw sql speed without needing to write any actual sql code.
+To start the Django Server using docker run
+
+     ./docker-compose up
