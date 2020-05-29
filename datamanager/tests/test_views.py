@@ -28,7 +28,6 @@ def tasks(project):
 
 
 class TestTaskUpdate():
-    """
     def test_update_task(self,client, project, tasks):
 
         for task in tasks:
@@ -70,7 +69,6 @@ class TestTaskUpdate():
 
         assert len(response.json()) == TEST_SIZE
 
-    """
     def test_bulk_update_list_serializer(self, client, project, tasks):
         from django.db import reset_queries
         from django.db import connection
@@ -103,15 +101,12 @@ class TestTaskUpdate():
             print(q['sql'][:500])
             print('########')
 
-        assert False
         assert response.status_code == status.HTTP_200_OK
 
 
 
         assert len(response.json()) == TEST_SIZE
 
-
-"""
 class TestTaskCreate():
     def test_create_task(self,client, project):
         test_url = reverse(
